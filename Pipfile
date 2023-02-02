@@ -11,6 +11,10 @@ django-cors-headers = "*"
 python-dotenv = "*"
 requests = "*"
 mysqlclient = "*"
+isort = "*"
+black = "*"
+flake8 = "*"
+pre-commit = "*"
 
 [dev-packages]
 
