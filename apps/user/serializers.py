@@ -2,6 +2,7 @@ import re
 
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from apps.user.models import User
 
@@ -28,3 +29,35 @@ class SignUpSerializer(ModelSerializer):
         model = User
         fields = ["email", "password"]
         extra_kwargs = {"password": {"write_only": True}}
+
+
+# api/users/signin
+class SignInSerializer(TokenObtainPairSerializer):
+    def validate(self, data):
+        email = data.get("email")
+        password = data.get("password")
+
+        if User.objects.filter(email=email).exists():
+            user = User.objects.get(email=email)
+
+            if not user.is_active:
+                raise serializers.ValidationError("삭제된 계정입니다.")
+
+            if not user.check_password(password):
+                raise serializers.ValidationError("아이디 또는 비밀번호를 잘못 입력했습니다.")  # 비밀번호 틀림
+        else:
+            raise serializers.ValidationError("아이디 또는 비빌먼호를 잘못 입력했습니다.")  # 아이디 없음
+
+        token = super().get_token(user)
+        access_token = str(token.access_token)
+        refresh_token = str(token)
+
+        data = {
+            "access": access_token,
+            "refresh": refresh_token,
+        }
+        return data
+
+    class Meta:
+        model = User
+        fields = ["email", "password"]
