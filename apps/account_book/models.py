@@ -1,11 +1,11 @@
-from django.contrib.auth import get_user_model
 from django.db import models
 
+from apps.user.models import User
 from apps.utils.timestamp import TimeStampedModel
 
 
 class AccountBook(TimeStampedModel):
-    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE)
     title = models.CharField(max_length=20)
     balance = models.IntegerField(default=0)
     is_active = models.BooleanField("삭제 여부", default=True)
