@@ -1,12 +1,14 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpdateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.response import Response
 
-from apps.account_book.models import AccountBook
+from apps.account_book.models import AccountBook, AccountBookRecord
 from apps.account_book.permissions import IsOwner, IsOwnerOrPostOnly
 from apps.account_book.serializers import (
     AccountBookDeleteSerializer,
     AccountBookDetailSerializer,
+    AccountBookRecordSerializer,
     AccountBookSerializer,
     AccountBookUpdateSerializer,
     DeletedAccountBookRestoreSerializer,
@@ -82,3 +84,35 @@ class AccountBookDetailView(RetrieveUpdateAPIView):
 
     def delete(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
+
+
+class AccountBookRecordView(ListCreateAPIView):
+    serializer_class = AccountBookRecordSerializer
+
+    def get_queryset(self):
+        queryset = AccountBookRecord.objects.filter(account_book=self.kwargs["pk"])
+        return queryset
+
+    def create(self, request, pk):
+        account_book = get_object_or_404(AccountBook, pk=pk, is_active=True)
+
+        if not account_book.user == request.user:
+            return Response({"detail": "이 작업을 수행할 권한(permission)이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
+
+        serializer = self.serializer_class(data=request.data, context={"account_book": account_book})
+
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get(self, request, pk):
+        account_book = get_object_or_404(AccountBook, pk=pk, is_active=True)
+
+        if not account_book.user == request.user:
+            return Response({"detail": "이 작업을 수행할 권한(permission)이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
+
+        queryset = self.get_queryset()
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

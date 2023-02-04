@@ -5,7 +5,7 @@ from apps.utils.timestamp import TimeStampedModel
 
 
 class AccountBook(TimeStampedModel):
-    user = models.ForeignKey(to=User, on_delete=models.CASCADE)
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name="account_book")
     title = models.CharField(max_length=20)
     balance = models.IntegerField(default=0)
     is_active = models.BooleanField("삭제 여부", default=True)
@@ -19,7 +19,7 @@ class AccountBook(TimeStampedModel):
 
 
 class AccountBookRecord(TimeStampedModel):
-    account_book = models.ForeignKey(to=AccountBook, on_delete=models.CASCADE)
+    account_book = models.ForeignKey(to=AccountBook, on_delete=models.CASCADE, related_name="account_book_record")
     amount = models.IntegerField("금액")
     description = models.CharField(max_length=100)
     date = models.DateField()
