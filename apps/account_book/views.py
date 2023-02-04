@@ -1,5 +1,5 @@
 from rest_framework import status
-from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpdateAPIView
+from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpdateAPIView, UpdateAPIView
 from rest_framework.response import Response
 
 from apps.account_book.models import AccountBook
@@ -9,6 +9,7 @@ from apps.account_book.serializers import (
     AccountBookDetailSerializer,
     AccountBookSerializer,
     AccountBookUpdateSerializer,
+    DeletedAccountBookRestoreSerializer,
 )
 
 
@@ -43,6 +44,17 @@ class DeletedAccountBookView(ListAPIView):
 
     def get_queryset(self):
         queryset = AccountBook.objects.filter(is_active=False, user=self.request.user)
+        return queryset
+
+
+# api/account-books/deleted/<int:pk>
+class DeletedAccountBookRestoreView(UpdateAPIView):
+    permission_classes = [IsOwner]
+    serializer_class = DeletedAccountBookRestoreSerializer
+    allowed_methods = ["PATCH"]
+
+    def get_queryset(self):
+        queryset = AccountBook.objects.filter(is_active=False, pk=self.kwargs["pk"])
         return queryset
 
 

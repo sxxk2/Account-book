@@ -29,6 +29,26 @@ class AccountBookSerializer(ModelSerializer):
         }
 
 
+# api/account-books/deleted/<int:pk>
+class DeletedAccountBookRestoreSerializer(ModelSerializer):
+    def update(self, instance, validated_data):
+        instance.is_active = True
+        instance.deleted_at = None
+        instance.updated_at = datetime.now()
+        instance.save()
+
+        return instance
+
+    class Meta:
+        model = AccountBook
+        fields = [
+            "is_active",
+            "deleted_at",
+            "updated_at",
+        ]
+        extra_kwargs = {"id": {"read_only": True}}
+
+
 # api/account-books/<int:pk>
 class AccountBookDetailSerializer(ModelSerializer):
     class Meta:
