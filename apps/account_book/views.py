@@ -1,5 +1,5 @@
 from rest_framework import status
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateAPIView
+from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpdateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.response import Response
 
 from apps.account_book.models import AccountBook
@@ -9,6 +9,7 @@ from apps.account_book.serializers import (
     AccountBookDetailSerializer,
     AccountBookSerializer,
     AccountBookUpdateSerializer,
+    DeletedAccountBookRestoreSerializer,
 )
 
 
@@ -30,10 +31,31 @@ class AccountBookView(ListCreateAPIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def list(self, request):
+    def get(self, request):
         queryset = self.get_queryset()
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# api/account-books/deleted
+class DeletedAccountBookView(ListAPIView):
+    permission_classes = [IsOwner]
+    serializer_class = AccountBookSerializer
+
+    def get_queryset(self):
+        queryset = AccountBook.objects.filter(is_active=False, user=self.request.user)
+        return queryset
+
+
+# api/account-books/deleted/<int:pk>
+class DeletedAccountBookRestoreOrHardDeleteView(RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsOwner]
+    serializer_class = DeletedAccountBookRestoreSerializer
+    allowed_methods = ["PATCH", "DELETE"]
+
+    def get_queryset(self):
+        queryset = AccountBook.objects.filter(is_active=False, pk=self.kwargs["pk"])
+        return queryset
 
 
 # api/account-books/<int:pk>
