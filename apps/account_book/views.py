@@ -1,5 +1,5 @@
 from rest_framework import status
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateAPIView
+from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpdateAPIView
 from rest_framework.response import Response
 
 from apps.account_book.models import AccountBook
@@ -30,10 +30,20 @@ class AccountBookView(ListCreateAPIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def list(self, request):
+    def get(self, request):
         queryset = self.get_queryset()
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# api/account-books/deleted
+class DeletedAccountBookView(ListAPIView):
+    permission_classes = [IsOwner]
+    serializer_class = AccountBookSerializer
+
+    def get_queryset(self):
+        queryset = AccountBook.objects.filter(is_active=False, user=self.request.user)
+        return queryset
 
 
 # api/account-books/<int:pk>
