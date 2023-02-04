@@ -4,11 +4,14 @@ from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpda
 from rest_framework.response import Response
 
 from apps.account_book.models import AccountBook, AccountBookRecord
-from apps.account_book.permissions import IsOwner, IsOwnerOrPostOnly
+from apps.account_book.permissions import IsOwner
 from apps.account_book.serializers import (
     AccountBookDeleteSerializer,
     AccountBookDetailSerializer,
+    AccountBookRecordDeleteSerializer,
+    AccountBookRecordDetailSerializer,
     AccountBookRecordSerializer,
+    AccountBookRecordUpdateSerializer,
     AccountBookSerializer,
     AccountBookUpdateSerializer,
     DeletedAccountBookRestoreSerializer,
@@ -17,7 +20,7 @@ from apps.account_book.serializers import (
 
 # api/account-books
 class AccountBookView(ListCreateAPIView):
-    permission_classes = [IsOwnerOrPostOnly]
+    permission_classes = [IsOwner]
     serializer_class = AccountBookSerializer
 
     def get_queryset(self):
@@ -116,3 +119,29 @@ class AccountBookRecordView(ListCreateAPIView):
         queryset = self.get_queryset()
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class AccountBookRecordDetailView(RetrieveUpdateAPIView):
+    permission_classes = [IsOwner]
+    allowed_methods = ["GET", "PATCH", "DELETE"]
+
+    def get_queryset(self):
+        queryset = AccountBookRecord.objects.filter(pk=self.kwargs["record_pk"], is_active=True)
+        return queryset
+
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return AccountBookRecordDetailSerializer
+        elif self.request.method == "PATCH":
+            return AccountBookRecordUpdateSerializer
+        elif self.request.method == "DELETE":
+            return AccountBookRecordDeleteSerializer
+
+    def get_object(self):
+        filter_kwargs = {self.lookup_field: self.kwargs["record_pk"]}
+        obj = get_object_or_404(self.get_queryset(), **filter_kwargs)
+        self.check_object_permissions(self.request, obj)
+        return obj
+
+    def delete(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)

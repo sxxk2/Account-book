@@ -106,6 +106,7 @@ class AccountBookDeleteSerializer(ModelSerializer):
         extra_kwargs = {"id": {"read_only": True}}
 
 
+# api/account-books/<int:pk>/records
 class AccountBookRecordSerializer(ModelSerializer):
     def create(self, validated_data):
         account_book = self.context["account_book"]
@@ -124,4 +125,62 @@ class AccountBookRecordSerializer(ModelSerializer):
         extra_kwargs = {
             "id": {"read_only": True},
             "account_book": {"read_only": True},
+            "is_active": {"read_only": True},
         }
+
+
+class AccountBookRecordDetailSerializer(ModelSerializer):
+    class Meta:
+        model = AccountBookRecord
+        exclude = [
+            "deleted_at",
+        ]
+        extra_kwargs = {"id": {"read_only": True}}
+
+
+class AccountBookRecordUpdateSerializer(ModelSerializer):
+    def validate(self, data):
+        if not data:
+            raise serializers.ValidationError("입력값이 없습니다.")
+        return data
+
+    def update(self, instance, validated_data):
+        account_book_record = super().update(instance, validated_data)
+        account_book_record.updated_at = datetime.now()
+        account_book_record.save()
+
+        return account_book_record
+
+    class Meta:
+        model = AccountBookRecord
+        fields = [
+            "id",
+            "amount",
+            "description",
+            "updated_at",
+        ]
+        extra_kwargs = {
+            "id": {"read_only": True},
+            "account_book": {"read_only": True},
+        }
+
+
+class AccountBookRecordDeleteSerializer(ModelSerializer):
+    def update(self, instance, validated_data):
+        if not instance.is_active:
+            raise serializers.ValidationError("이미 삭제된 메모 입니다.")
+
+        instance.is_active = False
+        instance.deleted_at = datetime.now()
+        instance.save()
+
+        return instance
+
+    class Meta:
+        model = AccountBook
+        fields = [
+            "id",
+            "is_active",
+            "deleted_at",
+        ]
+        extra_kwargs = {"id": {"read_only": True}}
