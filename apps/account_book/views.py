@@ -1,10 +1,15 @@
 from rest_framework import status
-from rest_framework.generics import ListCreateAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateAPIView
 from rest_framework.response import Response
 
 from apps.account_book.models import AccountBook
-from apps.account_book.permissions import IsOwnerOrPostOnly
-from apps.account_book.serializers import AccountBookSerializer
+from apps.account_book.permissions import IsOwner, IsOwnerOrPostOnly
+from apps.account_book.serializers import (
+    AccountBookDeleteSerializer,
+    AccountBookDetailSerializer,
+    AccountBookSerializer,
+    AccountBookUpdateSerializer,
+)
 
 
 # api/account-books
@@ -29,3 +34,29 @@ class AccountBookView(ListCreateAPIView):
         queryset = self.get_queryset()
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# api/account-books/<int:pk>
+class AccountBookDetailView(RetrieveUpdateAPIView):
+    permission_classes = [IsOwner]
+    allowed_methods = ["GET", "PATCH", "DELETE"]
+
+    def get_queryset(self):
+        queryset = AccountBook.objects.filter(pk=self.kwargs["pk"])
+        return queryset
+
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return AccountBookDetailSerializer
+        elif self.request.method == "PATCH":
+            return AccountBookUpdateSerializer
+        elif self.request.method == "DELETE":
+            return AccountBookDeleteSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        account_book = self.get_object()
+        serializer = self.get_serializer(account_book)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def delete(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
