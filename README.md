@@ -44,6 +44,7 @@
 <img src="https://img.shields.io/badge/Django-092E20?style=plastic&logo=Django&logoColor=white"/>
 <img src="https://img.shields.io/badge/Django Rest Framework-EE350F?style=plastic&logo=Django&logoColor=white"/>
 <img src="https://img.shields.io/badge/MySQL-00979D?style=plastic&logo=MySQL&logoColor=white"/>
+<img src="https://img.shields.io/badge/Redis-DC382D?style=plastic&logo=Redis&logoColor=white"/>
 
 <br>
 <br>
