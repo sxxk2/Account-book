@@ -1,13 +1,19 @@
+from django.contrib.auth import get_user_model
 from rest_framework.permissions import BasePermission
-
-
-class IsOwnerOrPostOnly(BasePermission):
-    def has_object_permission(self, request, view, obj):
-        if request.method == "POST":
-            return request.user.is_authenticated
-        return request.user.is_authenticated and obj.user.id == request.user.id
 
 
 class IsOwner(BasePermission):
     def has_object_permission(self, request, view, obj):
-        return request.user.is_authenticated and obj.user.id == request.user.id
+        user = request.user
+
+        if user.is_authenticated:
+            if user.is_admin:
+                return True
+            elif obj.__class__ == get_user_model():
+                return obj.id == user.id
+            elif hasattr(obj, "user"):
+                return obj.user.id == user.id
+            elif hasattr(obj, "account_book"):
+                return obj.account_book.user.id == user.id
+            return False
+        return False
