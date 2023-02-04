@@ -33,6 +33,7 @@ THIRD_PARTY_APPS = [
     "corsheaders",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
+    "django_redis",
 ]
 
 PROJECT_APPS = [
@@ -154,6 +155,17 @@ DATABASES = {
     }
 }
 
+
+# Cache
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": os.getenv("CACHE_LOCATION"),
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+    }
+}
 
 # SimpleJWT
 REST_FRAMEWORK = {

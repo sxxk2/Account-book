@@ -15,6 +15,7 @@ isort = "*"
 black = "*"
 flake8 = "*"
 pre-commit = "*"
+django-redis = "*"
 
 [dev-packages]
 
