@@ -2,6 +2,7 @@ from django.urls import path
 
 from apps.account_book.views import (
     AccountBookDetailView,
+    AccountBookRecordView,
     AccountBookView,
     DeletedAccountBookRestoreOrHardDeleteView,
     DeletedAccountBookView,
@@ -18,4 +19,5 @@ urlpatterns = [
         name="deletd_account_book_restore_or_hard_delete",
     ),
     path("/<int:pk>", AccountBookDetailView.as_view(), name="account_book_detail"),
+    path("/<int:pk>/records", AccountBookRecordView.as_view(), name="account_book_record"),
 ]

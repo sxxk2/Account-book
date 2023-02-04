@@ -3,7 +3,7 @@ from datetime import datetime
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 
-from apps.account_book.models import AccountBook
+from apps.account_book.models import AccountBook, AccountBookRecord
 
 
 # api/account-books
@@ -104,3 +104,24 @@ class AccountBookDeleteSerializer(ModelSerializer):
             "deleted_at",
         ]
         extra_kwargs = {"id": {"read_only": True}}
+
+
+class AccountBookRecordSerializer(ModelSerializer):
+    def create(self, validated_data):
+        account_book = self.context["account_book"]
+
+        account_book_record = AccountBookRecord.objects.create(account_book=account_book, **validated_data)
+        account_book_record.save()
+
+        return account_book_record
+
+    class Meta:
+        model = AccountBookRecord
+        exclude = [
+            "created_at",
+            "updated_at",
+        ]
+        extra_kwargs = {
+            "id": {"read_only": True},
+            "account_book": {"read_only": True},
+        }
