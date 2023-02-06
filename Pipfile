@@ -16,6 +16,8 @@ black = "*"
 flake8 = "*"
 pre-commit = "*"
 django-redis = "*"
+pytest = "*"
+pytest-django = "*"
 
 [dev-packages]
 
