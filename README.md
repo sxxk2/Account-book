@@ -357,3 +357,4 @@
 <img width="1000" alt="스크린샷 2023-02-06 오전 10 12 35" src="https://user-images.githubusercontent.com/83942213/216859807-12a2f1b6-c08b-47bb-b62a-8ac4ff9434fe.png">
 
 - 캐싱 데이터베이스에서 단축URL의 key로 원래 URL을 찾아 리턴
+
