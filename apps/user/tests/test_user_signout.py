@@ -5,17 +5,9 @@ from rest_framework.reverse import reverse
 
 
 @pytest.mark.django_db
-def test_user_signout_success(client, account):
-    # 로그인
-    data = {"email": "test@gmail.com", "password": "!test12345678"}
+def test_user_signout_success(client, login):
+    access_token, refresh_token = login
 
-    login = client.post(reverse("user:user_signin"), data=data)
-
-    assert login.status_code == 200
-    access_token = login.data["access_token"]
-    refresh_token = login.data["refresh_token"]
-
-    # 로그아웃
     headers = {"HTTP_AUTHORIZATION": f"Bearer {access_token}"}
     data = {"refresh_token": refresh_token}
 
@@ -27,17 +19,9 @@ def test_user_signout_success(client, account):
 
 
 @pytest.mark.django_db
-def test_user_signout_fail_with_blacklisted_token(client, account):
-    # 로그인
-    data = {"email": "test@gmail.com", "password": "!test12345678"}
+def test_user_signout_fail_with_blacklisted_token(client, login):
+    access_token, refresh_token = login
 
-    login = client.post(reverse("user:user_signin"), data=data)
-
-    assert login.status_code == 200
-    access_token = login.data["access_token"]
-    refresh_token = login.data["refresh_token"]
-
-    # 로그아웃
     headers = {"HTTP_AUTHORIZATION": f"Bearer {access_token}"}
     data = {"refresh_token": refresh_token}
 
