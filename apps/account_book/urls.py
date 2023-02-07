@@ -17,7 +17,7 @@ urlpatterns = [
     path(
         "/deleted/<int:pk>",
         DeletedAccountBookRestoreOrHardDeleteView.as_view(),
-        name="deletd_account_book_restore_or_hard_delete",
+        name="deleted_account_book_restore_or_hard_delete",
     ),
     path("/<int:pk>", AccountBookDetailView.as_view(), name="account_book_detail"),
     path("/<int:pk>/records", AccountBookRecordView.as_view(), name="account_book_record"),
