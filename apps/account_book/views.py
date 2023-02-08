@@ -25,6 +25,17 @@ class AccountBookView(ListCreateAPIView):
 
     def get_queryset(self):
         queryset = AccountBook.objects.filter(is_active=True, user=self.request.user)
+
+        search = self.request.query_params.get("search")
+        order = self.request.query_params.get("order")
+
+        if search:
+            queryset = queryset.filter(title__contains=search)
+        if order == "recent":
+            queryset = queryset.order_by("-created_at")
+        elif order == "old":
+            queryset = queryset.order_by("created_at")
+
         return queryset
 
     def create(self, request):
@@ -89,11 +100,31 @@ class AccountBookDetailView(RetrieveUpdateAPIView):
         return self.partial_update(request, *args, **kwargs)
 
 
+# api/account-books/<int:pk>/records
 class AccountBookRecordView(ListCreateAPIView):
     serializer_class = AccountBookRecordSerializer
 
     def get_queryset(self):
         queryset = AccountBookRecord.objects.filter(account_book=self.kwargs["pk"])
+
+        type = self.request.query_params.get("type")
+        search = self.request.query_params.get("search")
+        date = self.request.query_params.get("date")
+        order = self.request.query_params.get("order")
+
+        if type == "income":
+            queryset = queryset.filter(amount__gt=0)
+        elif type == "expense":
+            queryset = queryset.filter(amount__lt=0)
+        if search:
+            queryset = queryset.filter(description__contains=search)
+        if date:
+            queryset = queryset.filter(date=date)
+        if order == "recent":
+            queryset = queryset.order_by("-created_at")
+        elif order == "old":
+            queryset = queryset.order_by("created_at")
+
         return queryset
 
     def create(self, request, pk):
@@ -121,6 +152,7 @@ class AccountBookRecordView(ListCreateAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+# api/account-books/<int:pk>/records/<record_pk>
 class AccountBookRecordDetailView(RetrieveUpdateAPIView):
     permission_classes = [IsOwner]
     allowed_methods = ["GET", "PATCH", "DELETE"]

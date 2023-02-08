@@ -129,6 +129,7 @@ class AccountBookRecordSerializer(ModelSerializer):
         }
 
 
+# api/account-books/<int:pk>/records/record_pk
 class AccountBookRecordDetailSerializer(ModelSerializer):
     class Meta:
         model = AccountBookRecord
@@ -138,6 +139,7 @@ class AccountBookRecordDetailSerializer(ModelSerializer):
         extra_kwargs = {"id": {"read_only": True}}
 
 
+# api/account-books/<int:pk>/records/record_pk
 class AccountBookRecordUpdateSerializer(ModelSerializer):
     def validate(self, data):
         if not data:
