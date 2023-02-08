@@ -25,6 +25,17 @@ class AccountBookView(ListCreateAPIView):
 
     def get_queryset(self):
         queryset = AccountBook.objects.filter(is_active=True, user=self.request.user)
+
+        search = self.request.query_params.get("search")
+        order = self.request.query_params.get("order")
+
+        if search:
+            queryset = queryset.filter(title__contains=search)
+        if order == "recent":
+            queryset = queryset.order_by("-created_at")
+        elif order == "old":
+            queryset = queryset.order_by("created_at")
+
         return queryset
 
     def create(self, request):
